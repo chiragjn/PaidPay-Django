@@ -191,25 +191,59 @@ def citrus_bill_generator(request):
     print "chillies"
     return JsonResponse(bill)
 
+def create_signature(secret_key, string):
+    """ Create the signed message from secret_key and data string """
+    import hmac
+    signature = hmac.new(secret_key, string, hashlib.sha1).hexdigest()
+    return signature
 
 @csrf_exempt
 def citrus_return_url(request):
-    secret_key = '99840bf4d61c8942ef6325bbb1ec48e9ded25faa'
-    print "lol"
+    """
+    This function is the return url for citrus pay
+    """
     if request.method == 'POST':
-        data_string = (request.POST.get('TxId') + request.POST.get('TxStatus') +
-                      request.POST.get('amount') + request.POST.get('pgTxnNo') +
-                      request.POST.get('issuerRefNo') + request.POST.get('authIdCode') +
-                      request.POST.get('firstName') + request.POST.get('lastName') +
-                      request.POST.get('pgRespCode') + request.POST.get('addressZip'))
-
-        signature = hmac.new(secret_key, data_string, hashlib.sha1).hexdigest()
-        print "hsgjskdf"
+        secret_key = '99840bf4d61c8942ef6325bbb1ec48e9ded25faa'
+        tx_id = request.POST.get('TxId')
+        tx_status = request.POST.get('TxStatus')
+        amount = request.POST.get('amount')
+        pg_txn_no = request.POST.get('pgTxnNo')
+        issuer_ref_no = request.POST.get('issuerRefNo')
+        auth_id_code = request.POST.get('authIdCode')
+        first_name = request.POST.get('firstName')
+        last_name = request.POST.get('lastName')
+        pg_resp_code = request.POST.get('pgRespCode')
+        address_zip = request.POST.get('addressZip')
+        data_string = tx_id + tx_status + amount + pg_txn_no + issuer_ref_no + \
+            auth_id_code + first_name + last_name + pg_resp_code + address_zip
+        signature = create_signature(secret_key, data_string)
         if signature == request.POST.get('signature'):
-            print "herebitch"
-            return HttpResponse("< body>")
+            return HttpResponse("<html> <head><body><script>CitrusResponse.pgResponse('"
+                                + json.dumps(request.POST) + "');</script></body></head></html>")
         else:
-            error = { "error" : "Transaction Failed", "message": "Signature Verification Failed" }
+            error = {"error": "Transaction Failed",
+                     "message": "Signature Verification Failed"}
+            return HttpResponse("<html><head><body><script>CitrusResponse.pgResponse('"
+                                + json.dumps(error) + "');<script></body></head></html>")
+
+# @csrf_exempt
+# def citrus_return_url(request):
+#     secret_key = '99840bf4d61c8942ef6325bbb1ec48e9ded25faa'
+#     print "lol"
+#     if request.method == 'POST':
+#         data_string = (request.POST.get('TxId') + request.POST.get('TxStatus') +
+#                       request.POST.get('amount') + request.POST.get('pgTxnNo') +
+#                       request.POST.get('issuerRefNo') + request.POST.get('authIdCode') +
+#                       request.POST.get('firstName') + request.POST.get('lastName') +
+#                       request.POST.get('pgRespCode') + request.POST.get('addressZip'))
+#
+#         signature = hmac.new(secret_key, data_string, hashlib.sha1).hexdigest()
+#         print "hsgjskdf"
+#         if signature == request.POST.get('signature'):
+#             print "herebitch"
+#             return HttpResponse("< body>")
+#         else:
+#             error = { "error" : "Transaction Failed", "message": "Signature Verification Failed" }
 
 
 def test_ret(request):
