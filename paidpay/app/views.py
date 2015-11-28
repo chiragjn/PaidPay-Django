@@ -147,4 +147,13 @@ def gen_trans(request):
 
 def gcm_push_message():
     url = 'https://gcm-http.googleapis.com/gcm/send'
-    
+    key = 'AIzaSyDFDd13x1XaM5iPRj7Y7tXwzNCv-ZnFQYY'
+
+    payload = {
+        'data' : { 'message' : 'hello' },
+        'to' : 'dq2NrwgkvuE:APA91bHYkyySv336pwYnQbHJ2u_s6VyvLk3qSdcjtTZI2Sj5Gf_nXZmX96YTS435m7BTdrFWhTfyiYvGWlKoweWZD-_x8QOFPnM-bpmpIJgkHMjed4ALqSDNH8jRSShZJ9FKssfU-BhV'
+    }
+
+    r = requests.post(url,data=json.dumps(payload),auth=('key','AIzaSyDFDd13x1XaM5iPRj7Y7tXwzNCv-ZnFQYY'))
+
+    print r.text
