@@ -1,0 +1,24 @@
+<html>
+<head>    
+<script type="text/javascript">  	
+var globaldata;      
+function setdata(data) {          
+globaldata = data;      
+}      
+function postResponseiOS() {          
+return globaldata;      
+}      
+function postResponse(data) {          
+    CitrusResponse.pgResponse(data);
+}
+</script>     
+</head>     
+<body>     
+</body>     
+</html>
+<script>
+      postResponse({{ json }});
+</script>
+<script>
+    setdata({{ json }});
+</script>
