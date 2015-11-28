@@ -173,7 +173,7 @@ def gcm_push_message(message,topic,reg_id):
 def citrus_bill_generator(request):
     access_key = 'SU21NGP0DRCE73DXSDFA'
     secret_key = '99840bf4d61c8942ef6325bbb1ec48e9ded25faa'
-    return_url = 'http://49.248.127.26:1235/returnbill'
+    return_url = 'https://morning-reaches-5621.herokuapp.com/returnbill'
     value = request.GET['amount']
     txnid = str(int(time.time())) + str(int(random.random() * 99999) + 10000);
     data_string = ('merchantAccessKey=' + access_key +
@@ -207,7 +207,7 @@ def citrus_return_url(request):
         print "hsgjskdf"
         if signature == request.POST.get('signature'):
             print "herebitch"
-            return HttpResponse("<body>Done")
+            return HttpResponse("< body>")
         else:
             error = { "error" : "Transaction Failed", "message": "Signature Verification Failed" }
 
