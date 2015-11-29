@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     url(r'^complete/',views.complete_transaction, name='Generdfdate'),
     # url(r'^a/',views.testview, name='Generadfte')
     url(r'^history/',views.history, name='Gensderate'),
-    url(r'^cart/',views.cart, name='Cart')
+    url(r'^cart/',views.cart, name='Cart'),
+    url(r'^poll/',views.poll_if_done, name='Poll')
     # url(r'^generate_prototype/',views.gen_prop, name='Generate Transaction Prototype')
 )

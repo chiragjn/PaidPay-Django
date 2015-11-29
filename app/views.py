@@ -194,6 +194,18 @@ def complete_transaction(request):
         return HttpResponse("error",status=400)
     return HttpResponse("done")
 
+
+def poll_if_done(request):
+    rg = request.GET.get('id')
+    pt = Prototype.objects.filter(key=rg)
+    for p in pt:
+        trans = Transaction.objects.filter(prototype=p)
+        if trans:
+            return HttpResponse("1")
+    return HttpResponse("0")
+
+
+
 @csrf_exempt
 def history(request):
     try:
