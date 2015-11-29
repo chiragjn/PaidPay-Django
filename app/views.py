@@ -1,26 +1,15 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render
-from django.core import serializers
 import json
-from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.views.generic import CreateView
-from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.http import HttpResponse
 from decimal import *
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.contrib.auth import authenticate, login, logout
-import datetime
-import csv
 import hashlib
 import datetime
 import pytz
-from app.models import Product, Prototype, MainUser, PersonalTransfer
+from app.models import Product, Prototype, MainUser, PersonalTransfer, Transaction
 from django.views.decorators.csrf import csrf_exempt
 import qrcode
 import base64
 import StringIO
-import requests
 import time
 from gcm import GCM
 from django.http import JsonResponse
@@ -28,6 +17,7 @@ import hmac
 import random
 
 # Create your views here.
+
 @csrf_exempt
 def gen_prop(request):
     #generate prototype
@@ -150,6 +140,108 @@ def gen_trans(request):
     return HttpResponse(json.dumps(result), status=500)
 
 
+@csrf_exempt
+def complete_transaction(request):
+    try:
+    # print request.body
+    # data = json.loads(request.body)['json']
+        if request.POST:
+            consumer = request.POST.get('user_id')
+            useracc = MainUser.objects.get(id=consumer)
+            key = request.POST.get('key')
+            prototype = Prototype.objects.get(key=key)
+            type = request.POST.get('type')
+            mode = request.POST.get('mode')
+            ## type 1 is merchant and type 2 is personal and mode 2 is self
+            if type == 1:
+                products = Product.objects.filter(prototype=prototype)
+                merchant = prototype.merchant
+                total = Decimal(0)
+                for p in products:
+                    total += p.quantity*p.price
+                merchant.balance += total
+                merchant.save()
+                ts = Transaction()
+                ts.prototype = prototype
+                ts.customer = useracc
+                ts.status = 1
+                ts.mode = mode
+                ts.save()
+                if mode == 2:
+                    useracc.balance -= total
+                    useracc.save()
+            else:
+                pt = PersonalTransfer.objects.filter(prototype=prototype)
+                receiver = prototype.merchant
+                sender = useracc
+                total = Decimal(0)
+                for p in pt:
+                    total += p.amount
+                receiver.balance += total
+                receiver.save()
+                ts = Transaction()
+                ts.prototype = prototype
+                ts.customer = useracc
+                ts.status = 1
+                ts.mode = mode
+                ts.save()
+                if mode == 2:
+                    useracc.balance -= total
+                    useracc.save()
+                gcm_push_message("You've received funds in your paypaid account!","You have got funds!",receiver.gcm)
+    except Exception,e:
+        print e
+        return HttpResponse("error",status=400)
+    return HttpResponse("done")
+
+@csrf_exempt
+def history(request):
+    try:
+        if request.POST:
+            user_id = request.POST.get('user_id')
+            print user_id
+            useracc = MainUser.objects.get(id=user_id)
+            #get transactions done by user
+            ts = Transaction.objects.filter(customer=useracc)
+            # get requests by user
+            ps = Prototype.objects.filter(merchant=user_id)
+            val = []
+            for p in ps:
+                k = Transaction.objects.filter(prototype=p)
+                if k:
+                    val.append(p)
+            ## amount, date, + or - , payee
+            tx = []
+            for v in val:
+                products = Product.objects.filter(prototype=v)
+                total = Decimal(0)
+                for p in products:
+                        total += p.quantity*p.price
+                pt = PersonalTransfer.objects.filter(prototype=v)
+                for p in pt:
+                        total += p.amount
+                tx.append(["{0:.2f}".format(total),v.created_at.strftime("%d/%m/%y"),-1,v.merchant.name])
+            px = []
+            for j in ps:
+                tsx = Transaction.objects.filter(prototype=j)
+                if tsx:
+                    products = Product.objects.filter(prototype=j)
+                    total = Decimal(0)
+                    for p in products:
+                            total += p.quantity*p.price
+                    pt = PersonalTransfer.objects.filter(prototype=j)
+                    for p in pt:
+                            total += p.amount
+                    px.append(["{0:.2f}".format(total),j.created_at.strftime("%d/%m/%y"),+1,tsx[0].customer.name])
+
+            return HttpResponse(json.dumps({'plus':px,'minus':tx}))
+        #val contains successful receipts by user
+    except Exception,e:
+        print e
+        return HttpResponse("Error")
+    return HttpResponse("Done")
+
+
 def gcm_push_message(message,topic,reg_id):
     # url = 'https://gcm-http.googleapis.com/gcm/send'
     # key = 'AIzaSyDFDd13x1XaM5iPRj7Y7tXwzNCv-ZnFQYY'
@@ -166,7 +258,7 @@ def gcm_push_message(message,topic,reg_id):
     gcm = GCM('AIzaSyDFDd13x1XaM5iPRj7Y7tXwzNCv-ZnFQYY')
     data = {'topic': topic,'message': message}
     # reg_id = ['cnC55gD0PXY:APA91bEeEZYDAsRGfVElz3BSudnCOsXJ9qwTjVzlsKiEvUopZIT7XKOlNwnLEckc-Kg05k4W4icXhpCjKGTl5M-uRelT_1iPk9nx6DX0gUqWBcNa7tuN9AaQ5dBJF7TLAnOVDPeK4m9u']
-    response = gcm.json_request(registration_ids=reg_id, data=data)
+    response = gcm.json_request(registration_ids=[reg_id], data=data)
     print response
 
 
@@ -191,60 +283,29 @@ def citrus_bill_generator(request):
     print "chillies"
     return JsonResponse(bill)
 
-def create_signature(secret_key, string):
-    """ Create the signed message from secret_key and data string """
-    import hmac
-    signature = hmac.new(secret_key, string, hashlib.sha1).hexdigest()
-    return signature
 
 @csrf_exempt
 def citrus_return_url(request):
-    """
-    This function is the return url for citrus pay
-    """
+    secret_key = '99840bf4d61c8942ef6325bbb1ec48e9ded25faa'
+    print "lol"
     if request.method == 'POST':
-        secret_key = '99840bf4d61c8942ef6325bbb1ec48e9ded25faa'
-        tx_id = request.POST.get('TxId')
-        tx_status = request.POST.get('TxStatus')
-        amount = request.POST.get('amount')
-        pg_txn_no = request.POST.get('pgTxnNo')
-        issuer_ref_no = request.POST.get('issuerRefNo')
-        auth_id_code = request.POST.get('authIdCode')
-        first_name = request.POST.get('firstName')
-        last_name = request.POST.get('lastName')
-        pg_resp_code = request.POST.get('pgRespCode')
-        address_zip = request.POST.get('addressZip')
-        data_string = tx_id + tx_status + amount + pg_txn_no + issuer_ref_no + \
-            auth_id_code + first_name + last_name + pg_resp_code + address_zip
-        signature = create_signature(secret_key, data_string)
-        if signature == request.POST.get('signature'):
-            return HttpResponse("<html> <head><body><script>CitrusResponse.pgResponse('"
-                                + json.dumps(request.POST) + "');</script></body></head></html>")
-        else:
-            error = {"error": "Transaction Failed",
-                     "message": "Signature Verification Failed"}
-            return HttpResponse("<html><head><body><script>CitrusResponse.pgResponse('"
-                                + json.dumps(error) + "');<script></body></head></html>")
+        data_string = (request.POST.get('TxId') + request.POST.get('TxStatus') +
+                      request.POST.get('amount') + request.POST.get('pgTxnNo') +
+                      request.POST.get('issuerRefNo') + request.POST.get('authIdCode') +
+                      request.POST.get('firstName') + request.POST.get('lastName') +
+                      request.POST.get('pgRespCode') + request.POST.get('addressZip'))
 
-# @csrf_exempt
-# def citrus_return_url(request):
-#     secret_key = '99840bf4d61c8942ef6325bbb1ec48e9ded25faa'
-#     print "lol"
-#     if request.method == 'POST':
-#         data_string = (request.POST.get('TxId') + request.POST.get('TxStatus') +
-#                       request.POST.get('amount') + request.POST.get('pgTxnNo') +
-#                       request.POST.get('issuerRefNo') + request.POST.get('authIdCode') +
-#                       request.POST.get('firstName') + request.POST.get('lastName') +
-#                       request.POST.get('pgRespCode') + request.POST.get('addressZip'))
-#
-#         signature = hmac.new(secret_key, data_string, hashlib.sha1).hexdigest()
-#         print "hsgjskdf"
-#         if signature == request.POST.get('signature'):
-#             print "herebitch"
-#             return HttpResponse("< body>")
-#         else:
-#             error = { "error" : "Transaction Failed", "message": "Signature Verification Failed" }
+        signature = hmac.new(secret_key, data_string, hashlib.sha1).hexdigest()
+        print "hsgjskdf"
+        if signature == request.POST.get('signature'):
+            print "herebitch"
+            return HttpResponse("< body>")
+        else:
+            error = { "error" : "Transaction Failed", "message": "Signature Verification Failed" }
 
 
 def test_ret(request):
     return render(request,'test.html')
+
+def cart(request):
+    return render(request,'cart.html')
