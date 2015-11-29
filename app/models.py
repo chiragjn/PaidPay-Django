@@ -90,6 +90,7 @@ class Transaction(models.Model):
     class Meta:
         app_label = 'app'
 
+
 # class Transaction(models.Model):
 #     customer = models.ForeignKey(Customer)
 #     endpoint = models.ForeignKey(Endpoint)

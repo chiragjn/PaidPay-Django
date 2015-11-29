@@ -7,6 +7,7 @@ import datetime
 import pytz
 from app.models import Product, Prototype, MainUser, PersonalTransfer, Transaction
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 import qrcode
 import base64
 import StringIO
@@ -211,12 +212,11 @@ def history(request):
     try:
         if request.POST:
             user_id = request.POST.get('user_id')
-            print user_id
             useracc = MainUser.objects.get(id=user_id)
             #get transactions done by user
             ts = Transaction.objects.filter(customer=useracc)
             # get requests by user
-            ps = Prototype.objects.filter(merchant=user_id)
+            ps = Prototype.objects.filter(merchant=useracc)
             val = []
             for p in ps:
                 k = Transaction.objects.filter(prototype=p)
@@ -321,3 +321,52 @@ def test_ret(request):
 
 def cart(request):
     return render(request,'cart.html')
+
+def home(request):
+    return render(request,'index.html')
+
+@login_required
+def first(request):
+    if request.user.is_authenticated():
+        useracc = MainUser.objects.get(user=request.user)
+        ts = Transaction.objects.filter(customer=useracc)
+            # get requests by user
+        ps = Prototype.objects.filter(merchant=useracc)
+        val = []
+        for p in ps:
+            k = Transaction.objects.filter(prototype=p)
+            if k:
+                val.append(p)
+        ## amount, date, + or - , payee
+        tx = []
+        for v in val:
+            products = Product.objects.filter(prototype=v)
+            total = Decimal(0)
+            for p in products:
+                    total += p.quantity*p.price
+            pt = PersonalTransfer.objects.filter(prototype=v)
+            for p in pt:
+                    total += p.amount
+            tx.append(["{0:.2f}".format(total),v.created_at.strftime("%d/%m/%y"),v.merchant.name])
+        px = []
+        for j in ps:
+            tsx = Transaction.objects.filter(prototype=j)
+            if tsx:
+                products = Product.objects.filter(prototype=j)
+                total = Decimal(0)
+                for p in products:
+                        total += p.quantity*p.price
+                pt = PersonalTransfer.objects.filter(prototype=j)
+                for p in pt:
+                        total += p.amount
+                px.append(["{0:.2f}".format(total),j.created_at.strftime("%d/%m/%y"),tsx[0].customer.name])
+
+        return render(request,'home.html',{'plus':px,'minus':tx,'balance':useracc.balance})
+
+
+def balance(request):
+    if request.POST:
+        uid = request.POST['user_id']
+        merch = MainUser.objects.get(id=uid)
+        return HttpResponse(json.dumps({'data': "{0:.2f}".format(merch.balance)}))
+    return HttpResponse("Nothing")

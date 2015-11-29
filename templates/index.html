@@ -1,0 +1,154 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+    {% block title %} Home {% endblock %}
+
+    {% block navheads %}
+        <li class="nav-item"><a class="scrollto" href="#about">About</a></li>
+        <li class="nav-item"><a class="scrollto" href="#docs">Get Started</a></li>
+    {% endblock %}
+
+
+
+    {% block body %}
+
+
+
+    <!-- ******PROMO****** -->
+    <section id="promo" class="promo section offset-header">
+        <div class="container text-center">
+            <h2 class="title">Paid<span class="highlight">Pay</span></h2>
+            <p class="intro">Paise PaidPay,<br/>Kharcho Khulke</p>
+            <div class="btns">
+                <a class="btn btn-cta-secondary" href="login">Login</a>
+                <a class="btn btn-cta-primary" href="register">Register</a>
+            </div>
+            <ul class="meta list-inline">
+            </ul><!--//meta-->
+        </div><!--//container-->
+    </section><!--//promo-->
+    
+    <!-- ******ABOUT****** --> 
+    <section id="about" class="about section">
+        <div class="container">
+            <h2 class="title text-center">What is PaidPay?</h2>
+            <p class="intro text-center">Merchants, start accepting payments instantly from all possible wallets and payment service with just a single integration. For consumers, seamless payment experience at every merchant and peer transfer of funds.</p>
+            <div class="row">
+
+                <div class="item col-md-4 col-sm-6 col-xs-12">
+                    <div class="icon-holder">
+                        <i class="fa fa-code"></i>
+                    </div>
+                    <div class="content">
+                        <h3 class="sub-title">Easy to integrate</h3>
+                        <p>Just care about your business and leave the rest to us. One endpoint integration enables you to accept mutitple payment options instantly.</p>
+                    </div><!--//content-->
+                </div><!--//item-->
+
+                <div class="item col-md-4 col-sm-6 col-xs-12">
+                    <div class="icon-holder">
+                        <i class="fa fa-heart"></i>
+                    </div>
+                    <div class="content">
+                        <h3 class="sub-title">Peer to Peer</h3>
+                        <p>Peer to peer payments through our simple exchange protocol.</p>
+                    </div><!--//content-->
+                </div><!--//item-->
+                <div class="item col-md-4 col-sm-6 col-xs-12">
+                    <div class="icon-holder">
+                        <i class="fa fa-clock-o"></i>
+                    </div>
+                    <div class="content">
+                        <h3 class="sub-title">Time saver</h3>
+                        <p>With tons and hundreds of wallets and offers coming up everyday, use PayPaid to keep track of the best deals.d</p>
+                    </div><!--//content-->
+                </div><!--//item-->
+            </div><!--//row-->
+        </div><!--//container-->
+    </section><!--//about-->
+    
+    <!-- ******DOCS****** --> 
+    <section id="docs" class="docs section">
+        <div class="container">
+            <div class="docs-inner">
+            <h2 class="title text-center">Get Started</h2>            
+{#            <div class="block">#}
+{#                <h3 class="sub-title text-center">HTML</h3>#}
+{#                <p><a href="http://prismjs.com/" target="_blank">PrismJS</a> is used as the syntax highlighter here.</p>#}
+{#                <p>Below are the details of the custom PrismJS build used in this template. You can <a href="http://prismjs.com/download.html" target="_blank">build your own version</a> via their website should you need to.</p>#}
+{#                <ul class="list-unstyled">#}
+{#                    <li><strong>Compression level:</strong> Minified</li>#}
+{#                    <li><strong>Theme:</strong> Okaidia</li>#}
+{#                    <li><strong>Languages:</strong> Markup, CSS, C-like, JavaScript, PHP and Python</li>#}
+{#                </ul>#}
+{#                <div class="code-block">#}
+{#                    <!--//Use Prismjs - http://prismjs.com/index.html#basic-usage -->#}
+{#                    <pre><code class="language-markup">#}
+{#    &ltp class="my-style"&gt#}
+{#      Hello World!#}
+{#    &lt/p&gt#}
+{#                     </code></pre>#}
+{#                </div><!--//code-block-->#}
+{#            </div><!--//block-->#}
+            
+{#            <div class="block">#}
+{#                <h3 class="sub-title text-center">CSS</h3>#}
+{#                <p>Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus.</p>#}
+{#                #}
+{#                <div class="code-block">#}
+{#                    <!--//Use Prismjs - http://prismjs.com/index.html#basic-usage -->#}
+{#                    <pre>#}
+{#    <code class="language-css">#}
+{#    /*   #}
+{#     * Template Name: devAid - Responsive Website Template for developers#}
+{#     * Version: 1.0#}
+{#     * Author: Xiaoying Riley at 3rd Wave Media#}
+{#     * Website: http://themes.3rdwavemedia.com/#}
+{#     * Twitter: @3rdwave_themes#}
+{#    */#}
+{#    body {#}
+{#      font-family: 'Lato', arial, sans-serif;#}
+{#      color: #444444;#}
+{#      font-size: 16px;#}
+{#      -webkit-font-smoothing: antialiased;#}
+{#      -moz-osx-font-smoothing: grayscale;#}
+{#    }#}
+{#    </code></pre>#}
+{#                </div><!--//code-block-->#}
+{#            </div><!--//block-->#}
+            <div class="block">
+                <h3 class="sub-title text-center">One API to bind them all</h3>
+                <div class="code-block">
+                    <pre class="line-numbers language-java" data-keep-tags="span"><code id="code-b">
+                        {
+  "merchant_id":2,
+  "products": [{
+      "name" : "Alpenlible",
+      "sku" : "32478344",
+      "manufacturer": "Cadbury",
+      "price": 23.2,
+      "currency": 1,
+      "quantity": 2,
+      "desc" : "good chocolates"
+  }],
+  "auth_token": "akjsdghi8346r8yihudfjskdyie7oudisjlx"
+}
+                    </code></pre>
+                </div><!--//code-block-->
+            </div><!--//block-->   <!--//block-->
+            
+            </div><!--//docs-inner-->         
+        </div><!--//container-->
+    </section><!--//features-->
+      
+    <!-- ******FOOTER****** --> 
+    <footer class="footer">
+        <div class="container text-center">
+            <small class="copyright">Designed with <i class="fa fa-heart"></i> in Bombay</small>
+        </div><!--//container-->
+    </footer><!--//footer-->
+     
+    <!-- Javascript -->          
+
+    {% endblock %}
+

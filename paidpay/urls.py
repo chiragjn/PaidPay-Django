@@ -8,7 +8,7 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    # url(r'^$', views.home, name='Home'),
+    url(r'^$', views.home, name='Home'),
     url(r'^generate_prototype/',views.gen_prop, name='Generate Transaction Prototype'),
     url(r'^generate_transfer/',views.gen_trans, name='Generate Transfer Prototype'),
     url(r'^bill/',views.citrus_bill_generator, name='Gendfderate'),
@@ -18,6 +18,8 @@ urlpatterns = patterns('',
     # url(r'^a/',views.testview, name='Generadfte')
     url(r'^history/',views.history, name='Gensderate'),
     url(r'^cart/',views.cart, name='Cart'),
-    url(r'^poll/',views.poll_if_done, name='Poll')
+    url(r'^home/',views.first, name='Cart'),
+    url(r'^poll/',views.poll_if_done, name='Poll'),
+    url(r'^balance/',views.balance, name='Balance')
     # url(r'^generate_prototype/',views.gen_prop, name='Generate Transaction Prototype')
 )

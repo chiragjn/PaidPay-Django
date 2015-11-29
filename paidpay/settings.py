@@ -83,7 +83,15 @@ if os.environ.get('DATABASE_URL') is None:
        'default': {
            'ENGINE': 'django.db.backends.sqlite3',
            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-       }
+       },
+#        'salesforce': {
+#     'ENGINE': 'salesforce.backend',
+#     'CONSUMER_KEY': '3MVG9ZL0ppGP5UrBFABDgyW7nFdPAMpJYPxTd8BI4duHmySFYiXqh_bWAt6YRL7Wc2I27zawFWWfHXdWXLagV',
+#     'CONSUMER_SECRET': '832106117558823016',
+#     'USER': 'monik',
+#     'PASSWORD': 'kickass911',
+#     'HOST': 'https://test.salesforce.com',
+# }
    }
    # DATABASES = {
    #     "default": {
@@ -98,10 +106,22 @@ if os.environ.get('DATABASE_URL') is None:
 else:
    DATABASES = {
        'default': dj_database_url.config(default=os.environ.get('DATABASE_URL'))
+#        'salesforce': {
+#     'ENGINE': 'salesforce.backend',
+#     'CONSUMER_KEY': '3MVG9ZL0ppGP5UrBFABDgyW7nFdPAMpJYPxTd8BI4duHmySFYiXqh_bWAt6YRL7Wc2I27zawFWWfHXdWXLagV',
+#     'CONSUMER_SECRET': '832106117558823016',
+#     'USER': 'monik@etiole.com',
+#     'PASSWORD': 'kickass911',
+#     'HOST': 'https://login.salesforce.com',
+# }
    }
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# DATABASE_ROUTERS = [
+#     "salesforce.router.ModelRouter"
+# ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/

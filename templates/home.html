@@ -1,0 +1,104 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+    {% block title %} Home {% endblock %}
+
+    {% block navheads %}
+        <li class="nav-item"><a href="">Your balance : {{ balance }} INR</a></li>
+        <li class="nav-item"><a href="/withdraw">Withdraw</a></li>
+    {% endblock %}
+
+{% block body %}
+
+    <div class="container-fluid">
+
+        <br/>
+
+        <div class="col-md-12">
+
+        <h2>Hello</h2>
+            <div class="row">
+            <h2 class="text-center">Expenditure</h2>
+            </div>
+
+            <div class="row">
+
+            <table class="table table-striped">
+
+                <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Merchant</th>
+                </tr>
+              </thead>
+
+                 <tbody>
+
+                 {% for p in plus %}
+        <tr>
+          <th scope="row">{{ forloop.counter }}</th>
+
+                   {% for k in p %}
+                       <td>{{ k }}</td>
+                   {% endfor %}
+
+        </tr>
+                 {% endfor %}
+
+                </tbody>
+
+
+            </table>
+
+            </div>
+
+
+
+        <div class="row">
+            <h2 class="text-center">Earning</h2>
+            </div>
+
+            <div class="row">
+
+            <table class="table table-striped">
+
+                <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Friend Name</th>
+                </tr>
+              </thead>
+
+                 <tbody>
+
+                 {% for p in minus %}
+        <tr>
+          <th scope="row">{{ forloop.counter }}</th>
+
+                   {% for k in p %}
+                       <td>{{ k }}</td>
+                   {% endfor %}
+
+        </tr>
+                 {% endfor %}
+
+                </tbody>
+
+
+            </table>
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+
+
+{% endblock %}
