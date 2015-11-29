@@ -94,10 +94,10 @@ def gen_prop(request):
 def gen_trans(request):
     result = dict()
     try:
-        data = json.loads(request.body)
+        # data = json.loads(request.body)
         pt = Prototype()
         try:
-            merchant = MainUser.objects.get(id=data['user_id'])
+            merchant = MainUser.objects.get(id=request.POST['user_id'])
         except:
             return HttpResponse("error", status=500)
         pt.merchant = merchant
@@ -105,9 +105,9 @@ def gen_trans(request):
         pt.key = hashlib.md5(str(datetime.datetime.now(tz=ist))+"42HACKSTREET").hexdigest()
         pt.save()
         pti = PersonalTransfer()
-        pti.amount = Decimal(data['amount'])
-        pti.currency = data['currency']
-        pti.description = data['description']
+        pti.amount = Decimal(request.POST['amount'])
+        pti.currency = request.POST['currency']
+        pti.description = request.POST['description']
         pti.prototype = pt
         pti.save()
         #generate QR CODE
